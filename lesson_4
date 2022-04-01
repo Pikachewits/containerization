@@ -1,0 +1,123 @@
+
+
+  01/04/2022 ►  16:12.52 ►  /home/DaniilPikalev/Desktop ► minikube start
+* minikube v1.25.2 на Microsoft Windows 10 Pro 10.0.19043 Build 19043
+* Используется драйвер hyperv на основе существующего профиля
+* Запускается control plane узел minikube в кластере minikube
+* Перезагружается существующий hyperv VM для "minikube" ...
+* Подготавливается Kubernetes v1.23.3 на Docker 20.10.12 ...
+  - kubelet.housekeeping-interval=5m
+* Компоненты Kubernetes проверяются ...
+  - Используется образ gcr.io/k8s-minikube/storage-provisioner:v5
+* Включенные дополнения: storage-provisioner, default-storageclass
+
+! C:\Program Files\Docker\Docker\resources\bin\kubectl.exe is version 1.21.5, which may have incompatibilites with K
+  - Want kubectl v1.23.3? Try 'minikube kubectl -- get pods -A'
+* Готово! kubectl настроен для использования кластера "minikube" и "default" пространства имён по умолчанию
+
+
+  01/04/2022 ►  16:22.58 ►  /home/DaniilPikalev/Desktop ► kubectl apply -f config-map.yaml
+configmap/postgres-config created
+                                                                                                                   v
+
+
+  01/04/2022 ►  16:52.53 ►  /home/DaniilPikalev/Desktop ► kubectl apply -f postgres-pv.yaml
+persistentvolume/postgres-pv created
+                                                                                                                   v
+
+
+  01/04/2022 ►  16:53.43 ►  /home/DaniilPikalev/Desktop ► kubectl apply -f postgres-pvc.yaml
+persistentvolumeclaim/postgres-pvc created
+                                                                                                                   v
+
+  01/04/2022 ►  16:53.58 ►  /home/DaniilPikalev/Desktop ► kubectl apply -f postgres-deployment.yaml
+deployment.apps/postgres created
+                                                                                                                   v
+
+  01/04/2022 ►  16:54.29 ►  /home/DaniilPikalev/Desktop ► kubectl get deployments
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+postgres   1/1     1            1           26s
+                                                                                                                   v
+
+  01/04/2022 ►  16:54.55 ►  /home/DaniilPikalev/Desktop ► get pod -o wide
+get: command not found
+                                                                                                                   x
+
+  01/04/2022 ►  16:55.20 ►  /home/DaniilPikalev/Desktop ► kubectl get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GA
+TES
+postgres-798d846874-sz5ml   1/1     Running   0          63s   172.17.0.3   minikube   <none>           <none>
+                                                                                                                   v
+
+  01/04/2022 ►  16:55.32 ►  /home/DaniilPikalev/Desktop ► kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 172.17.0.3 -U postgresadmin postgresdb
+Password for user postgresadmin:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+postgresdb=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+postgresdb=# \dt
+             List of relations
+ Schema |   Name    | Type  |     Owner
+--------+-----------+-------+---------------
+ public | testtable | table | postgresadmin
+(1 row)
+
+postgresdb=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+                                                                                                                   v
+
+  01/04/2022 ►  16:59.04 ►  /home/DaniilPikalev/Desktop ► kubectl delete pod postgres-798d846874-sz5ml
+pod "postgres-798d846874-sz5ml" deleted
+                                                                                                                   v
+
+  01/04/2022 ►  16:59.53 ►  /home/DaniilPikalev/Desktop ► kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-798d846874-bssgp   1/1     Running   0          8s
+                                                                                                                   v
+
+
+  01/04/2022 ►  17:00.08 ►  /home/DaniilPikalev/Desktop ► kubectl get pod -o wide                             NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GA
+TES
+postgres-798d846874-bssgp   1/1     Running   0          20s   172.17.0.3   minikube   <none>           <none>
+       
+
+
+                                                                                                            v
+
+  01/04/2022 ►  17:00.12 ►  /home/DaniilPikalev/Desktop ► kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 172.17.0.3 -U postgresadmin postgresdb
+Password for user postgresadmin:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+postgresdb=# \db
+          List of tablespaces
+    Name    |     Owner     | Location
+------------+---------------+----------
+ pg_default | postgresadmin |
+ pg_global  | postgresadmin |
+(2 rows)
+
+postgresdb=# \dt
+             List of relations
+ Schema |   Name    | Type  |     Owner
+--------+-----------+-------+---------------
+ public | testtable | table | postgresadmin
+(1 row)
+
+postgresdb=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+                                                                                                                   v
+
+  01/04/2022 ►  17:01.14 ►  /home/DaniilPikalev/Desktop ►
+
