@@ -1,0 +1,179 @@
+  04/04/2022 ►  13:35.40 ►  /home/DaniilPikalev/Desktop ► minikube start
+* minikube v1.25.2 на Microsoft Windows 10 Pro 10.0.19043 Build 19043
+* Используется драйвер hyperv на основе существующего профиля
+* Запускается control plane узел minikube в кластере minikube
+* Перезагружается существующий hyperv VM для "minikube" ...
+* Подготавливается Kubernetes v1.23.3 на Docker 20.10.12 ...
+  - kubelet.housekeeping-interval=5m
+* Компоненты Kubernetes проверяются ...
+  - Используется образ gcr.io/k8s-minikube/storage-provisioner:v5
+* Включенные дополнения: default-storageclass, storage-provisioner
+
+! C:\Program Files\Docker\Docker\resources\bin\kubectl.exe is version 1.21.5, which may have incompatibilites with K
+  - Want kubectl v1.23.3? Try 'minikube kubectl -- get pods -A'
+* Готово! kubectl настроен для использования кластера "minikube" и "default" пространства имён по умолчанию
+
+
+  04/04/2022 ►  13:47.23 ►  /home/DaniilPikalev/Desktop ► kubectl get pods
+NAME                        READY   STATUS    RESTARTS        AGE
+postgres-798d846874-bssgp   1/1     Running   1 (2d20h ago)   2d20h
+
+
+  04/04/2022 ►  13:48.11 ►  /home/DaniilPikalev/Desktop ► kubectl describe pod postgres-798d846874-bssgp
+Name:         postgres-798d846874-bssgp
+Namespace:    default
+Priority:     0
+Node:         minikube/172.28.82.246
+Start Time:   Fri, 01 Apr 2022 16:59:51 +0300
+Labels:       app=postgres
+              pod-template-hash=798d846874
+Annotations:  <none>
+Status:       Running
+IP:           172.17.0.3
+IPs:
+  IP:           172.17.0.3
+Controlled By:  ReplicaSet/postgres-798d846874
+Containers:
+  postgres:
+    Container ID:   docker://92d93b864c05892bacd240e68a655371aee7b2c24f751084cc8a035324efa9ff
+    Image:          postgres:10.13
+    Image ID:       docker-pullable://postgres@sha256:e3a02efdce3ec64cfdb76a8ff93ae14d3294e47a0203d8230c8853a3890fe3
+    Port:           5432/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Mon, 04 Apr 2022 13:47:17 +0300
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    137
+      Started:      Fri, 01 Apr 2022 16:59:51 +0300
+      Finished:     Fri, 01 Apr 2022 17:02:15 +0300
+    Ready:          True
+    Restart Count:  1
+    Environment Variables from:
+      postgres-config  ConfigMap  Optional: false
+    Environment:       <none>
+    Mounts:
+      /var/lib/postgresql/data from postgredb (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8drgv (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  postgredb:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  postgres-pvc
+    ReadOnly:   false
+  kube-api-access-8drgv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age    From               Message
+  ----    ------          ----   ----               -------
+  Normal  Scheduled       2d20h  default-scheduler  Successfully assigned default/postgres-798d846874-bssgp to minik
+  Normal  Pulled          2d20h  kubelet            Container image "postgres:10.13" already present on machine
+  Normal  Created         2d20h  kubelet            Created container postgres
+  Normal  Started         2d20h  kubelet            Started container postgres
+  Normal  SandboxChanged  89s    kubelet            Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulled          88s    kubelet            Container image "postgres:10.13" already present on machine
+  Normal  Created         88s    kubelet            Created container postgres
+  Normal  Started         88s    kubelet            Started container postgres
+
+  04/04/2022 ►  13:51.51 ►  /home/DaniilPikalev/Desktop ► kubectl describe pod postgres-798d846874-bssgp | grep IP:
+IP:           172.17.0.3
+  IP:           172.17.0.3
+
+
+  04/04/2022 ►  14:01.05 ►  /home/DaniilPikalev/Desktop/conteneriztion/psql ► kubectl apply -f postgres-nodeport
+service/database created
+
+
+  04/04/2022 ►  14:01.40 ►  /home/DaniilPikalev/Desktop/conteneriztion/psql ► kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+database     NodePort    10.99.199.184   <none>        5432:30535/TCP   12s
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          6d18h
+
+
+  04/04/2022 ►  14:01.52 ►  /home/DaniilPikalev/Desktop/conteneriztion/psql ► minikube service list
+|-------------|------------|--------------|----------------------------|
+|  NAMESPACE  |    NAME    | TARGET PORT  |            URL             |
+|-------------|------------|--------------|----------------------------|
+| default     | database   |         5432 | http://172.28.82.246:30535 |
+| default     | kubernetes | No node port |
+| kube-system | kube-dns   | No node port |
+|-------------|------------|--------------|----------------------------|
+
+
+  04/04/2022 ►  14:05.25 ►  /home/DaniilPikalev/Desktop/conteneriztion ► kubectl get deployment
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+postgres   1/1     1            1           2d21h
+
+
+  04/04/2022 ►  14:06.38 ►  /home/DaniilPikalev/Desktop/conteneriztion ► cd redmine/
+                                                                                                                   v
+
+  04/04/2022 ►  14:25.34 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl apply -f redmine-deployment.yaml
+deployment.apps/redmine-deployment created
+                                                                                                                   v
+
+  04/04/2022 ►  14:25.46 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl apply -f redmine-nodeport.yaml
+service/database-redmine created
+                                                                                                                   v
+
+  04/04/2022 ►  14:26.45 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► minikube service list        |-------------|------------------|--------------|----------------------------|
+|  NAMESPACE  |       NAME       | TARGET PORT  |            URL             |
+|-------------|------------------|--------------|----------------------------|
+| default     | database         |         5432 | http://172.28.82.246:30535 |
+| default     | database-redmine |         3000 | http://172.28.82.246:31677 |
+| default     | kubernetes       | No node port |
+| kube-system | kube-dns         | No node port |
+|-------------|------------------|--------------|----------------------------|
+                                                                                                                   v
+
+  04/04/2022 ►  14:27.02 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl create deployment redm --image=redmine:4.1.1
+deployment.apps/redm created
+                                                                                                                   v
+
+  04/04/2022 ►  14:28.07 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl expose deployment redm --type=NodePort --port=3000
+service/redm exposed
+                                                                                                                   v
+
+  04/04/2022 ►  14:28.44 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl get service list
+Error from server (NotFound): services "list" not found
+                                                                                                                   x
+
+  04/04/2022 ►  14:28.56 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl get service redm
+NAME   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+redm   NodePort   10.98.80.162   <none>        3000:31637/TCP   18s
+                                                                                                                   v
+
+  04/04/2022 ►  14:29.03 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► minikube service list        |-------------|------------------|--------------|----------------------------|
+|  NAMESPACE  |       NAME       | TARGET PORT  |            URL             |
+|-------------|------------------|--------------|----------------------------|
+| default     | database         |         5432 | http://172.28.82.246:30535 |
+| default     | database-redmine |         3000 | http://172.28.82.246:31677 |
+| default     | kubernetes       | No node port |
+| default     | redm             |         3000 | http://172.28.82.246:31637 |
+| kube-system | kube-dns         | No node port |
+|-------------|------------------|--------------|----------------------------|
+                                                                                                                   v
+
+  04/04/2022 ►  14:29.20 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl apply -f redmine-ingress.yaml
+ingress.networking.k8s.io/example-redmine created
+                                                                                                                   v
+
+  04/04/2022 ►  14:29.48 ►  /home/DaniilPikalev/Desktop/conteneriztion/redmine ► kubectl get ingress
+NAME              CLASS    HOSTS          ADDRESS   PORTS   AGE
+example-redmine   <none>   redmine-test             80      8s
+                                                                                                                   v
+
+
